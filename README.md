@@ -25,7 +25,7 @@ The input HL7 JSON FHIR files to process. This may be either a single file or a 
 
 ```-o,--output <arg>         output file (single file or directory) - standard output if omitted```
 
-The output file/folder. If the input parameter is a folder, this must be as well. If this parameters is a folder, the output file will be named the same as the input file, but with the appropriate file extension for the RDF format. If this parameter is omitted, results will be send to standard output. Omitting this parameters is only possible if the input parameters is a single file (not a directory).
+The output file/folder. If the input parameter is a folder, this must be as well. If this parameters is a folder, the output file will be named the same as the input file, but with the appropriate file extension for the RDF format. If this parameter is omitted, results will be sent to standard output. Omitting this parameters is only possible if the input parameters is a single file (not a directory).
 
 ```-v,--shexvalidate         apply ShEx validation```
 
@@ -41,10 +41,14 @@ Prints the usage message and exits.
 
 ## Usage Notes
 * For processing multiple files, specifiying a directory as the input parameter will be much more efficient than processing each file individually.
-* If ShEx validation is indicated, processing will slow by a few seconds. This is a one time cost as the ShEx file loads. If you are processing multiple files in bulk via an input directory, this will only happen once.
+* If ShEx validation is indicated, processing will slow by a few seconds. This is a one time cost as the ShEx file loads. If you are processing multiple files in bulk via an input directory, this slowdown will only happen once.
 * All HTTP calls to external resources are cached for the scope of one CLI interaction. This means if the input is a directory, HTTP calls will be cached over the duration of all files being processed.
 
 ## Installation
+### Prerequisites
+* Java 11 or higher
+
+### Steps
 1. Download the latest release [jsonld-cli-0.1.0-bin.tar.gz](https://github.com/fhircat/jsonld-cli/releases/download/v0.1.0-alpha/jsonld-cli-0.1.0-bin.tar.gz) or [jsonld-cli-0.1.0-bin.zip](https://github.com/fhircat/jsonld-cli/releases/download/v0.1.0-alpha/jsonld-cli-0.1.0-bin.zip)
 2. Extract the archive, resulting in this format:
 ```
