@@ -54,4 +54,4 @@ jsonld-cli-0.1.0
 ```
 3. Navigate to the ```bin``` directory. There will be two scripts, ```fhircatjsonld```, and ```fhircatjsonld.bat```, for use with Linux and Windows, respectively.
 4. You may need to adjust the permissions of the scripts depending on your system. For example, ```chmod 755 fhircatjsonld```.
-5. Run the script with usages as described above.
+5. Run the ```fhircatjsonld``` or ```fhircatjsonld.bat``` script with usages as described above.
