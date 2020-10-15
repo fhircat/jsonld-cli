@@ -1,4 +1,4 @@
-package org.fhircat.jsonld.cli;
+package org.fhircat.jsonld.cli.exceptions;
 
 /**
  * Exception thrown if the input is not a FHIR Resource.

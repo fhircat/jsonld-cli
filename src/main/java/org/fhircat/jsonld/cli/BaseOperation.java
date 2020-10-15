@@ -14,8 +14,7 @@ public abstract class BaseOperation implements Operation {
     String outputFilePath = command.getOptionValue("output");
 
     File inputFile = new File(inputFilePath);
-    File outputFile = new File(outputFilePath);
-
+    File outputFile = outputFilePath != null ? new File(outputFilePath) : null;
 
     this.doRun(inputFile, outputFile, command);
   }

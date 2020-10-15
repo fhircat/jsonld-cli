@@ -1,6 +1,15 @@
 package org.fhircat.jsonld.cli;
 
-import org.apache.commons.cli.*;
+import ch.qos.logback.classic.Level;
+import java.util.stream.Collectors;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.slf4j.LoggerFactory;
 
 /**
  * The main Command Line Interface entry class.
@@ -10,52 +19,69 @@ public class Cli {
   public static void main(String... args) throws Throwable {
     Options options = new Options();
 
-    //Option outputFormat = new Option("f", "outputFormat", true, "output format");
-    //outputFormat.setRequired(false);
-    //options.addOption(outputFormat);
+    Option outputFormat = new Option("f", "outputFormat", true,
+        "output format (one of: " + ToRdf.formatFileExtensions.keySet().stream().collect(Collectors.joining(",")) +")");
+    outputFormat.setRequired(false);
+    options.addOption(outputFormat);
 
-    Option input = new Option("i", "input", true, "input file path");
+    Option input = new Option("i", "input", true, "input file path (single file or directory)");
     input.setRequired(true);
     options.addOption(input);
 
-    Option output = new Option("o", "output", true, "output file");
-    output.setRequired(true);
+    Option output = new Option("o", "output", true, "output file (single file or directory) - standard output if omitted");
+    output.setRequired(false);
     options.addOption(output);
 
-    Option processingType = new Option("p", "processingType", true, "processingType");
-    processingType.setRequired(true);
-    options.addOption(processingType);
+    Option shexValidate = new Option("v", "shexvalidate", false, "apply ShEx validation");
+    shexValidate.setType(Boolean.class);
+    shexValidate.setRequired(false);
+    options.addOption(shexValidate);
 
-    Option serverBase = new Option("fs", "serverBase", true, "server base");
-    serverBase.setRequired(false);
-    options.addOption(serverBase);
+    Option verbose = new Option("V", "verbose", false, "print extra logging messages");
+    verbose.setType(Boolean.class);
+    verbose.setRequired(false);
+    options.addOption(verbose);
 
-    Option versionBase = new Option("vb", "versionBase", true, "version base");
-    versionBase.setRequired(false);
-    options.addOption(versionBase);
-
-    Option addContext = new Option("c", "addcontext", false, "add context");
-    addContext.setType(Boolean.class);
-    addContext.setRequired(false);
-    options.addOption(addContext);
+    Option help = new Option("h", "help", false, "print the usage help");
+    help.setType(Boolean.class);
+    help.setRequired(false);
+    options.addOption(help);
 
     CommandLineParser parser = new DefaultParser();
-    HelpFormatter formatter = new HelpFormatter();
 
     CommandLine command = null;
+
+    String helpText = "FHIRcat JSON-LD Command Line Interface";
+    int helpWidth = 500;
+
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.setWidth(helpWidth);
+    formatter.setOptionComparator(null);
 
     try {
       command = parser.parse(options, args);
     } catch (ParseException e) {
       System.out.println(e.getMessage());
-      formatter.printHelp("FHIRcat JSON-LD Command Line Interface", options);
+
+      formatter.printHelp(helpText, options);
 
       System.exit(1);
     }
 
-    Operation operation = null;
+    if (command.hasOption('h')) {
+      formatter.printHelp(helpText, options);
 
-    switch (command.getOptionValue("p")) {
+      System.exit(0);
+    }
+
+    if (command.hasOption("V")) {
+      ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.fhircat.jsonld.cli");
+      logger.setLevel(Level.DEBUG);
+    }
+
+    Operation operation;
+
+    switch (command.getOptionValue("p", "toRDF")) {
       case "toRDF": operation = new ToRdf(); break;
       case "pre": operation = new Preprocess(); break;
       default: throw new RuntimeException("Option: " + command.getOptionValue("p") + " not recognized.");

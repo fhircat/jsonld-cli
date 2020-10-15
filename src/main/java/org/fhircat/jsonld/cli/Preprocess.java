@@ -13,11 +13,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.fhircat.jsonld.cli.exceptions.NotAFhirResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,31 +45,30 @@ public class Preprocess extends BaseOperation {
 
   @Override
   protected void doRun(File inputFile, File outputFile, CommandLine command) {
+    Consumer<File> fn = (file) -> {
+      try {
+        boolean addContext = command.hasOption("c");
+
+        String result = this.preprocess(IOUtils.toString(new FileReader(file)),
+            command.getOptionValue("fs", "http://hl7.org/fhir/"),
+            command.getOptionValue("vb", "http://build.fhir.org/"),
+            addContext
+        );
+
+        FileUtils.write(new File(outputFile, file.getName()), result);
+      } catch (Throwable e) {
+        log.warn("Error writing file: " + file.getPath(), e);
+      }
+    };
+
     if (inputFile.isDirectory()) {
       if (! outputFile.isDirectory()) {
         throw new RuntimeException("If the input file is a directory, the output must be as well.");
       }
 
-      Arrays.stream(inputFile.listFiles((dir, name) -> name.endsWith(".json")))
-          .forEach(file -> {
-            try {
-              try {
-                String result = this.preprocess(IOUtils.toString(new FileReader(file)),
-                    command.getOptionValue("fs"),
-                    command.getOptionValue("vb"),
-                    command.hasOption("c"));
-
-                FileUtils.write(new File(outputFile, file.getName()), result);
-              } catch (NotAFhirResourceException e) {
-                log.warn(file.getPath() + " is not a FHIR Resource.");
-              } catch (Exception e) {
-                throw new RuntimeException(e);
-              }
-            } catch (Throwable e) {
-              log.warn("Error writing file: " + file.getPath(), e);
-            }
-
-          });
+      Arrays.stream(inputFile.listFiles((dir, name) -> name.endsWith(".json"))).forEach(fn);
+    } else {
+      fn.accept(inputFile);
     }
   }
 
@@ -110,7 +111,6 @@ public class Preprocess extends BaseOperation {
 
     return json;
   }
-
 
   private Map<String, Object> addContext(Map<String, Object> json, Set<String> resourceTypeSet, String server) {
     //Fill out the rest of the context
