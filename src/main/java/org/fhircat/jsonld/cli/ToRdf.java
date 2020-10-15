@@ -179,11 +179,16 @@ public class ToRdf extends BaseOperation {
     }
 
     if (output != null) {
-      String ttlFilename = fileName.replace(".json", "." + formatFileExtensions.get(outputFormat));
+      if (output.isDirectory()) {
+        String ttlFilename = fileName
+            .replace(".json", "." + formatFileExtensions.get(outputFormat));
 
-      File outputFile = new File(output, ttlFilename);
+        File outputFile = new File(output, ttlFilename);
 
-      model.write(new FileOutputStream(outputFile), outputFormat);
+        model.write(new FileOutputStream(outputFile), outputFormat);
+      } else {
+        model.write(new FileOutputStream(output), outputFormat);
+      }
     } else {
       model.write(System.out, outputFormat);
     }
