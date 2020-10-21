@@ -31,10 +31,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.fhircat.jsonld.cli.exceptions.InvalidParameterException;
 import org.fhircat.jsonld.cli.exceptions.ShExValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,11 +67,26 @@ public class ToRdf extends BaseOperation {
   public void doRun(File inputFile, File outputFile, CommandLine commandLine) {
     JsonLdOptions jsonLdOptions = this.getJsonLdOptions();
 
+    String preDirectoryPath = commandLine.getOptionValue("p");
+
+    File preDirectory;
+
+    if (StringUtils.isNotBlank(preDirectoryPath)) {
+      preDirectory = new File(preDirectoryPath);
+
+      if (! preDirectory.isDirectory()) {
+        throw new InvalidParameterException("p", preDirectoryPath, "Parameter must be a directory.");
+      }
+    } else {
+      preDirectory = null;
+    }
+
+
     Consumer<File> fn = (file) -> {
       try {
         boolean validate = commandLine.hasOption("v");
 
-        writeFile(file, jsonLdOptions, outputFile,
+        writeFile(file, jsonLdOptions, outputFile, preDirectory,
             commandLine.getOptionValue("f", "N-TRIPLE"),
             commandLine.getOptionValue("fs", "http://hl7.org/fhir/"),
             commandLine.getOptionValue("vb", "http://build.fhir.org/"),
@@ -134,7 +152,7 @@ public class ToRdf extends BaseOperation {
     return jsonLdOptions;
   }
 
-  private void writeFile(File input, JsonLdOptions jsonLdOptions, File output, String outputFormat, String server, String versionBase, boolean addContext, boolean validate) throws Exception, JsonLdError {
+  private void writeFile(File input, JsonLdOptions jsonLdOptions, File output, File outputPreDirectory, String outputFormat, String server, String versionBase, boolean addContext, boolean validate) throws Exception, JsonLdError {
     String preprocessedJson = this.preprocess.preprocess(
         IOUtils.toString(new FileReader(input)),
         server,
@@ -143,6 +161,15 @@ public class ToRdf extends BaseOperation {
     );
 
     String fileName = input.getName();
+
+    if (outputPreDirectory != null) {
+      log.debug("Starting write of pre-JSON to: " + outputPreDirectory.getPath());
+
+      String preFilename = fileName
+          .replace(".json", "-pre.json");
+
+      FileUtils.write(new File(outputPreDirectory, preFilename), preprocessedJson);
+    }
 
     long time = System.currentTimeMillis();
     log.debug("Starting JSONLD for: " + input.getPath());

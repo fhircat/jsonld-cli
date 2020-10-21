@@ -8,7 +8,7 @@ import org.apache.commons.rdf.api.RDFTerm;
 /**
  * Exception thrown if the input does not pass ShEx validation.
  */
-public class ShExValidationException extends Exception {
+public class ShExValidationException extends CliException {
 
   public ShExValidationException(String msg, List<Pair<RDFTerm, Label>> errors) {
     super(msg + "\nInvalid shapes: " + errors);

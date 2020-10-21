@@ -47,6 +47,10 @@ public class Cli {
     help.setRequired(false);
     options.addOption(help);
 
+    Option pre = new Option("p", "pre", true, "output the intermediate 'pre'-JSON structures");
+    pre.setRequired(false);
+    options.addOption(pre);
+
     CommandLineParser parser = new DefaultParser();
 
     CommandLine command = null;
@@ -79,13 +83,7 @@ public class Cli {
       logger.setLevel(Level.DEBUG);
     }
 
-    Operation operation;
-
-    switch (command.getOptionValue("p", "toRDF")) {
-      case "toRDF": operation = new ToRdf(); break;
-      case "pre": operation = new Preprocess(); break;
-      default: throw new RuntimeException("Option: " + command.getOptionValue("p") + " not recognized.");
-    }
+    Operation operation = new ToRdf();
 
     operation.run(command);
   }

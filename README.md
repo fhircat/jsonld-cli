@@ -10,6 +10,7 @@ usage: FHIRcat JSON-LD Command Line Interface
  -i,--input <arg>          input file path (single file or directory)
  -o,--output <arg>         output file (single file or directory) - standard output if omitted
  -v,--shexvalidate         apply ShEx validation
+ -p,--pre                  output the intermediate 'pre'-JSON structures
  -V,--verbose              print extra logging messages
  -h,--help                 print the usage help
  ```
@@ -27,6 +28,10 @@ The output file/folder. If the input parameter is a folder, this must be as well
 ```-v,--shexvalidate         apply ShEx validation```
 Validates all output against the FHIR ShEx schema. If the resulting output does not pass validation, processing will stop and a message will be displayed listing the nonconformant shapes.
 
+```-p,--pre                  output the intermediate 'pre'-JSON structures```
+Outputs the intermediate 'pre' JSON FHIR structures. This parameter must be a directory (and it must exist). Files will be written using the same name as the input file but with a '-pre.json' suffix.
+ 
+ 
 ```-V,--verbose              print extra logging messages```
 Outputs additional logging regarding the individual steps of the algorithm. Generally not necessary unless debugging or examining performance.
  
