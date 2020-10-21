@@ -35,7 +35,6 @@ Validates all output against the FHIR ShEx schema. If the resulting output does 
 ```-p,--pre                  output the intermediate 'pre'-JSON structures```
 Outputs the intermediate 'pre' JSON FHIR structures. This parameter must be a directory (and it must exist). Files will be written using the same name as the input file but with a '-pre.json' suffix.
  
- 
 ```-V,--verbose              print extra logging messages```
 
 Outputs additional logging regarding the individual steps of the algorithm. Generally not necessary unless debugging or examining performance.
