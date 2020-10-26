@@ -50,7 +50,7 @@ public class Validator {
         ShExCParser parser = new ShExCParser();
 
         Map<Label, ShapeExpr> rules = parser
-            .getRules(this.getClass().getClassLoader().getResourceAsStream("shex/fhir-r4.shex"));
+            .getRules(this.getClass().getClassLoader().getResourceAsStream("fhir-r4/fhir-r4.shex"));
 
         this.schema = new ShexSchema(GlobalFactory.RDFFactory, rules, parser.getStart());
       } catch (Exception e) {
