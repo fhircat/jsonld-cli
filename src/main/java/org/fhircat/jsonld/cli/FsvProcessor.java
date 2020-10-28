@@ -25,7 +25,7 @@ public class FsvProcessor {
     this.model = model;
   }
 
-  public String flat_path(List<String> path) {
+  public String flatPath(List<String> path) {
     return FHIR.FHIR_NS + StringUtils.join(path, ".");
   }
 
@@ -39,7 +39,7 @@ public class FsvProcessor {
   }
 
   private Optional<RDFNode> getRange(List<String> path) {
-    String dotPath = this.flat_path(path);
+    String dotPath = this.flatPath(path);
 
     Resource dotPathResource = model.createResource(dotPath);
 
