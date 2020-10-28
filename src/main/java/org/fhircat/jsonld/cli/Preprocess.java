@@ -64,16 +64,16 @@ public class Preprocess extends BaseOperation {
 
   private PercentEscaper escaper = new PercentEscaper("-._", false);
 
-  Pattern gYear_re = Pattern.compile("([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)$");
-  Pattern gYearMonth_re = Pattern
+  Pattern gYearRe = Pattern.compile("([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)$");
+  Pattern gYearMonthRe = Pattern
       .compile("([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2]))$");
-  Pattern date_re = Pattern.compile(
+  Pattern dateRe = Pattern.compile(
       "([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?)?$");
-  Pattern dateTime_re = Pattern.compile("([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)" +
+  Pattern dateTimeRe = Pattern.compile("([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)" +
       "(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])" +
       "(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?" +
       "(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))))?)$");
-  Pattern time_re = Pattern.compile("([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?$");
+  Pattern timeRe = Pattern.compile("([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?$");
 
 
   private static final Map<String, String> CODE_SYSTEM_MAP = new HashMap<>();
@@ -113,24 +113,24 @@ public class Preprocess extends BaseOperation {
     }
   }
 
-  public Map toR4(Map fhir_json, String versionBase, String contextserver, String fhirserver, boolean addContext) {
+  public Map toR4(Map fhirJson, String versionBase, String contextServer, String fhirServer, boolean addContext) {
     //# Do the recursive conversion
-    String resource_type = (String) fhir_json.get(RESOURCETYPE_KEY); //     # Pick this up before it processed for use in context below
-    dict_processor(fhir_json, resource_type, Lists.newArrayList(), Maps.newHashMap(), false, contextserver, fhirserver);
+    String resourceType = (String) fhirJson.get(RESOURCETYPE_KEY); //     # Pick this up before it processed for use in context below
+    dictProcessor(fhirJson, resourceType, Lists.newArrayList(), Maps.newHashMap(), false, contextServer, fhirServer);
 
     //# Traverse the graph adjusting relative URL's
-    adjust_urls(fhir_json, "");
+    adjustUrls(fhirJson, "");
 
     //# Add nodeRole
-    fhir_json.put("nodeRole", "fhir:treeRoot");
+    fhirJson.put("nodeRole", "fhir:treeRoot");
 
-    this.addOntologyHeader(fhir_json, versionBase);
+    this.addOntologyHeader(fhirJson, versionBase);
 
     if (addContext) {
-      this.addContext(fhir_json, resource_type, contextserver, fhirserver);
+      this.addContext(fhirJson, resourceType, contextServer, fhirServer);
     }
 
-    return fhir_json;
+    return fhirJson;
   }
 
   private void addOntologyHeader(Map<String, Object> json, String versionBase) {
@@ -144,16 +144,16 @@ public class Preprocess extends BaseOperation {
       json.put("@included", hdr);
     }
     else {
-      System.out.println("JSON does not have an identifier");
+      throw new RuntimeException("JSON does not have an identifier");
     }
   }
 
-  private void addContext(Map<String, Object> fhir_json, String resource_type, String contextserver, String fhirserver) {
+  private void addContext(Map<String, Object> fhirJson, String resourceType, String contextServer, String fhirServer) {
     List contexts = Lists.newArrayList(
-        contextserver + resource_type.toLowerCase() + ".context.jsonld",
-        contextserver + "root.context.jsonld");
+        contextServer + resourceType.toLowerCase() + ".context.jsonld",
+        contextServer + "root.context.jsonld");
 
-    fhir_json.put("@context", contexts);
+    fhirJson.put("@context", contexts);
 
     Map<String, Object> localContext = new HashMap<>();
 
@@ -163,8 +163,8 @@ public class Preprocess extends BaseOperation {
 
     localContext.put("nodeRole", nodeRole);
 
-    if (fhirserver != null) {
-      localContext.put("@base", fhirserver);
+    if (fhirServer != null) {
+      localContext.put("@base", fhirServer);
     }
 
     Map<String, Object> imports = new HashMap<>();
@@ -175,7 +175,7 @@ public class Preprocess extends BaseOperation {
     versionIri.put("@type", "@id");
     localContext.put("owl:versionIRI", versionIri);
 
-    ((List) fhir_json.get("@context")).add(localContext);
+    ((List) fhirJson.get("@context")).add(localContext);
 
   }
 
@@ -213,22 +213,22 @@ public class Preprocess extends BaseOperation {
 
     Resource dt = null;
     if (dateUri.equals(FHIR.DATE) || dateUri.equals(FHIR.DATE_TIME)) {
-      if (gYear_re.matcher(dateString).matches()) {
+      if (gYearRe.matcher(dateString).matches()) {
         dt = XSD.gYear;
-      } else if (gYearMonth_re.matcher(dateString).matches()) {
+      } else if (gYearMonthRe.matcher(dateString).matches()) {
         dt = XSD.gYearMonth;
-      } else if (date_re.matcher(dateString).matches()) {
+      } else if (dateRe.matcher(dateString).matches()) {
         dt = XSD.date;
-      } else if (dateTime_re.matcher(dateString).matches()) {
+      } else if (dateTimeRe.matcher(dateString).matches()) {
         dt = XSD.dateTime;
       }
     }
 
     if (dt != null) {
-      Map typed_obj = new HashMap();
-      typed_obj.put("@value", dateString);
-      typed_obj.put("@type", dt.getURI());
-      json.put("value", typed_obj);
+      Map typedObj = new HashMap();
+      typedObj.put("@value", dateString);
+      typedObj.put("@type", dt.getURI());
+      json.put("value", typedObj);
     }
 
     return json;
@@ -262,7 +262,7 @@ public class Preprocess extends BaseOperation {
     return s;
   }
 
-  public Map genReference(String ref, Map refobject, String server, Map<String, String> id_map) {
+  public Map genReference(String ref, Map refobject, String server, Map<String, String> idMap) {
     String link;
 
     if (!ref.contains("://") && !ref.startsWith("/")) {
@@ -285,8 +285,8 @@ public class Preprocess extends BaseOperation {
 
       Map rval = new HashMap();
 
-      if (id_map.containsKey(link)) {
-        rval.put("@id", id_map.get(link));
+      if (idMap.containsKey(link)) {
+        rval.put("@id", idMap.get(link));
       } else {
         rval.put("@id", link);
         if (typ != null) {
@@ -304,13 +304,13 @@ public class Preprocess extends BaseOperation {
     List<Map> containers = (List<Map>) resource.getOrDefault(CONTAINED_KEY, Lists.newArrayList());
 
     for (Map container : containers) {
-      String contained_id = "#" + container.get(ID_KEY);
-      String contained_type = (String) resource.get(RESOURCETYPE_KEY);
-      idMap.put(contained_id, contained_type + '/' + resource.get(ID_KEY) + contained_id);
+      String containedId = "#" + container.get(ID_KEY);
+      String containedType = (String) resource.get(RESOURCETYPE_KEY);
+      idMap.put(containedId, containedType + '/' + resource.get(ID_KEY) + containedId);
     }
   }
 
-  private Map<String, String> bundle_urls(Map resource) {
+  private Map<String, String> bundleUrls(Map resource) {
     String resourceType = (String) resource.get(RESOURCETYPE_KEY);
 
     if (resourceType == null) {
@@ -335,9 +335,9 @@ public class Preprocess extends BaseOperation {
           resource.put("@id", fullUrl);
 
           String resourceId = (String) resource.get(ID_KEY);
-          String resource_type = (String) resource.get(RESOURCETYPE_KEY);
+          String innerResourceType = (String) resource.get(RESOURCETYPE_KEY);
 
-          rval.put(resource_type + "/" + resourceId, fullUrl);
+          rval.put(innerResourceType + "/" + resourceId, fullUrl);
         }
       }
     }
@@ -345,7 +345,7 @@ public class Preprocess extends BaseOperation {
     return rval;
   }
 
-  private void adjust_urls(Object json, String outerUrl) {
+  private void adjustUrls(Object json, String outerUrl) {
     if (json instanceof Map) {
       Map map = (Map) json;
 
@@ -360,145 +360,145 @@ public class Preprocess extends BaseOperation {
         outerUrl = containerId;
       }
       for (Object value : ((Map) json).values()) {
-        adjust_urls(value, outerUrl);
+        adjustUrls(value, outerUrl);
       }
     } else if (json instanceof List) {
       for (Object entry : (List) json) {
-        adjust_urls(entry, outerUrl);
+        adjustUrls(entry, outerUrl);
       }
     }
   }
 
-  private void map_element(String element_key, Object element_value,
-      String container_type, List<String> path, Map container,
-      Map<String, String> id_map, boolean in_container, String resource_type, String contextserver, String fhirserver) {
-    if (element_key.startsWith("@")) { //:  # Ignore JSON-LD components"
+  private void mapElement(String elementKey, Object elementValue,
+      String containerType, List<String> path, Map container,
+      Map<String, String> idMap, boolean inContainer, String resourceType, String contextServer, String fhirServer) {
+    if (elementKey.startsWith("@")) { //:  # Ignore JSON-LD components"
       return;
     }
 
-    if (! this.is_choice_element(element_key)) {
-      path.add(element_key);
+    if (! this.isChoiceElement(elementKey)) {
+      path.add(elementKey);
     }
     if (path.equals(Lists.newArrayList("Coding", "system"))) {
       this.addTypeArc(container);
     }
 
-    String inner_type = this.localName((String) container.getOrDefault(RESOURCETYPE_KEY, null));
+    String innerType = this.localName((String) container.getOrDefault(RESOURCETYPE_KEY, null));
 
-    if (element_value instanceof Map) { //          # Inner object -- process each element\n"
-      dict_processor((Map) element_value, resource_type, path, id_map, false, contextserver, fhirserver);
-    } else if (element_value instanceof List) { //           # List -- process each member individually\n"
-      container.put(element_key, this.list_processor(element_key, (List) element_value, resource_type, path, id_map, contextserver, fhirserver));
-    } else if (element_key.equals(RESOURCETYPE_KEY) && element_value instanceof String && ! ((String) element_value).startsWith("fhir:")) {
-      container.put(element_key, "fhir:" + element_value);
-      container.put("@context",  contextserver + ((String) element_value).toLowerCase() + ".context.jsonld");
-    } else if (element_key.equals(ID_KEY)) {
-      String relative_id;
-      if (in_container || !container.containsKey(RESOURCETYPE_KEY)) {
-        relative_id = "#" + element_value;
+    if (elementValue instanceof Map) { //          # Inner object -- process each element\n"
+      dictProcessor((Map) elementValue, resourceType, path, idMap, false, contextServer, fhirServer);
+    } else if (elementValue instanceof List) { //           # List -- process each member individually\n"
+      container.put(elementKey, this.listProcessor(elementKey, (List) elementValue, resourceType, path, idMap, contextServer, fhirServer));
+    } else if (elementKey.equals(RESOURCETYPE_KEY) && elementValue instanceof String && ! ((String) elementValue).startsWith("fhir:")) {
+      container.put(elementKey, "fhir:" + elementValue);
+      container.put("@context",  contextServer + ((String) elementValue).toLowerCase() + ".context.jsonld");
+    } else if (elementKey.equals(ID_KEY)) {
+      String relativeId;
+      if (inContainer || !container.containsKey(RESOURCETYPE_KEY)) {
+        relativeId = "#" + elementValue;
       } else {
-        if (((String) element_value).startsWith("#")) {
-          relative_id = (String) element_value;
+        if (((String) elementValue).startsWith("#")) {
+          relativeId = (String) elementValue;
         } else {
-          relative_id = ((inner_type == null ? container_type : inner_type) + '/' + element_value);
+          relativeId = ((innerType == null ? containerType : innerType) + '/' + elementValue);
         }
 
       }
 
-      String container_id = id_map != null ? id_map.getOrDefault(relative_id, relative_id) : relative_id;
+      String containerId = idMap != null ? idMap.getOrDefault(relativeId, relativeId) : relativeId;
 
       if (! container.containsKey("@id")) { //Bundle ids have already been added elsewhere
-        container.put("@id", container_id);
+        container.put("@id", containerId);
       }
 
-      container.put(element_key, this.toValue(element_value));
-    } else if (! Sets.newHashSet(NODEROLE_KEY, INDEX_KEY, DIV_KEY).contains(element_key)) { //      # Convert most other nodes to value entries
-      container.put(element_key, this.toValue(element_value));
+      container.put(elementKey, this.toValue(elementValue));
+    } else if (! Sets.newHashSet(NODEROLE_KEY, INDEX_KEY, DIV_KEY).contains(elementKey)) { //      # Convert most other nodes to value entries
+      container.put(elementKey, this.toValue(elementValue));
     }
 
-    if (! (element_value instanceof List)) {
-      this.add_type_arcs(element_key, container.get(element_key), container, path, contextserver, id_map);
+    if (! (elementValue instanceof List)) {
+      this.addTypeArcs(elementKey, container.get(elementKey), container, path, contextServer, idMap);
     }
 
-    if (! this.is_choice_element(element_key)) {
+    if (! this.isChoiceElement(elementKey)) {
       path.remove(path.size() - 1);
     }
   }
 
-  private void dict_processor(Map<String, Object> container, String resource_type, List<String> path, Map<String, String> id_map, boolean in_container, String contextserver, String fhirserver) {
+  private void dictProcessor(Map<String, Object> container, String resourceType, List<String> path, Map<String, String> idMap, boolean inContainer, String contextServer, String fhirServer) {
     if (container.containsKey(RESOURCETYPE_KEY)) {
-      resource_type = (String) container.get(RESOURCETYPE_KEY);
-      path = Lists.newArrayList(resource_type);
+      resourceType = (String) container.get(RESOURCETYPE_KEY);
+      path = Lists.newArrayList(resourceType);
     }
 
     // If we've got bundle, build an id map to use in the interior
-    Map<String, String> possible_id_map = this.bundle_urls(container); // # Note that this will also assign ids to bundle entries
-    if (possible_id_map != null) {
-      id_map = possible_id_map;
-    } else if (id_map == null) {
-      id_map = Maps.newHashMap();
+    Map<String, String> possibleIdMap = this.bundleUrls(container); // # Note that this will also assign ids to bundle entries
+    if (possibleIdMap != null) {
+      idMap = possibleIdMap;
+    } else if (idMap == null) {
+      idMap = Maps.newHashMap();
     }
 
     // Add any contained resources to the contained URL map
-    this.addContainedUrls(container, id_map);
+    this.addContainedUrls(container, idMap);
 
     // Process each of the elements in the dictionary
     // Note: use keys() and re-look up to prevent losing the JsonObj characteristics of the values
     for (String key : container.keySet().stream().filter(k -> ! ((String) k).startsWith("_")).collect(Collectors.toList())) {
-      if (this.is_choice_element(key)) {
-        map_element(key, container.get(key), resource_type, Lists.newArrayList(key.substring(VALUE_KEY_LEN)), container, id_map, in_container, resource_type, contextserver, fhirserver);
+      if (this.isChoiceElement(key)) {
+        mapElement(key, container.get(key), resourceType, Lists.newArrayList(key.substring(VALUE_KEY_LEN)), container, idMap, inContainer, resourceType, contextServer, fhirServer);
       } else {
-        map_element(key, container.get(key), resource_type, path, container, id_map, in_container, resource_type, contextserver, fhirserver);
+        mapElement(key, container.get(key), resourceType, path, container, idMap, inContainer, resourceType, contextServer, fhirServer);
       }
     }
 
     // Merge any extensions (keys that start with '_') into the base
     for (Map.Entry<String, Object> entry : container.entrySet().stream().filter(e -> e.getKey().startsWith("_")).collect(Collectors.toList())) {
-      String base_key = entry.getKey().substring(1);
+      String baseKey = entry.getKey().substring(1);
 
-      Object ext_value = entry.getValue();
+      Object extValue = entry.getValue();
       container.remove(entry.getKey());
 
-      if (! container.containsKey(base_key)) {
-        container.put(base_key, ext_value); // No base -- move the extension in
-      } else if (! (container.get(base_key) instanceof Map)) {
-        Map newValue = this.toValue(container.get(base_key));
-        container.put(base_key, newValue); //     #Base is not a JSON object
-        if (ext_value instanceof Map) {
-          newValue.put("extension", ((Map) ext_value).get("extension"));
+      if (! container.containsKey(baseKey)) {
+        container.put(baseKey, extValue); // No base -- move the extension in
+      } else if (! (container.get(baseKey) instanceof Map)) {
+        Map newValue = this.toValue(container.get(baseKey));
+        container.put(baseKey, newValue); //     #Base is not a JSON object
+        if (extValue instanceof Map) {
+          newValue.put("extension", ((Map) extValue).get("extension"));
         } else {
-          newValue.put("extension", ext_value);
+          newValue.put("extension", extValue);
         }
       } else {
-        ((Map) container.get(base_key)).put("extension", ((Map) ext_value).get("extension"));
+        ((Map) container.get(baseKey)).put("extension", ((Map) extValue).get("extension"));
       }
 
-      map_element(base_key, ext_value, EXTENSION_RESOURCE_TYPE, Lists.newArrayList(EXTENSION_RESOURCE_TYPE), container, id_map, false, resource_type, contextserver, fhirserver);
+      mapElement(baseKey, extValue, EXTENSION_RESOURCE_TYPE, Lists.newArrayList(EXTENSION_RESOURCE_TYPE), container, idMap, false, resourceType, contextServer, fhirServer);
     }
 
   }
 
-  private List<Object> list_processor(String list_key, List<Object> list_object, String resource_type, List<String> path, Map<String, String> id_map, String contextserver, String fhirserver) {
+  private List<Object> listProcessor(String listKey, List<Object> listObject, String resourceType, List<String> path, Map<String, String> idMap, String contextServer, String fhirServer) {
 
-    BiFunction<Object, Integer, Object> list_element = ((entry, pos) -> {
+    BiFunction<Object, Integer, Object> listElement = ((entry, pos) -> {
       if (entry instanceof Map) {
-        dict_processor((Map) entry, resource_type, path, id_map, list_key.contains(CONTAINED_KEY), contextserver, fhirserver);
-        if (((Map) entry).containsKey(INDEX_KEY) && !this.fsvProcessor.flat_path(path)
+        dictProcessor((Map) entry, resourceType, path, idMap, listKey.contains(CONTAINED_KEY), contextServer, fhirServer);
+        if (((Map) entry).containsKey(INDEX_KEY) && !this.fsvProcessor.flatPath(path)
             .contains("_")) {
           throw new RuntimeException();
         } else {
           ((Map) entry).put("index", pos);
         }
 
-        if (list_key.equals(CODING_KEY)) {
+        if (listKey.equals(CODING_KEY)) {
           this.addTypeArc((Map) entry);
         }
       } else if (entry instanceof List) {
         throw new RuntimeException();
       } else {
         entry = this.toValue(entry);
-        //add_type_arcs(list_key, entry, entry, path, opts, server, id_map)
-        this.add_type_arcs(list_key, (Map) entry, (Map) entry, path, fhirserver, id_map);
+        //addTypeArcs(listKey, entry, entry, path, opts, server, idMap)
+        this.addTypeArcs(listKey, (Map) entry, (Map) entry, path, fhirServer, idMap);
         ((Map) entry).put("index", pos);
       }
 
@@ -507,21 +507,21 @@ public class Preprocess extends BaseOperation {
 
     List returnList = Lists.newArrayList();
 
-    for (int i = 0; i < list_object.size(); i++) {
-      returnList.add(list_element.apply(list_object.get(i), i));
+    for (int i = 0; i < listObject.size(); i++) {
+      returnList.add(listElement.apply(listObject.get(i), i));
     }
 
     return returnList;
   }
 
-  private void add_type_arcs(String elementKey, Object container, Map<String, Object> parentContainer, List<String> path, String server, Map<String, String> id_map) {
+  private void addTypeArcs(String elementKey, Object container, Map<String, Object> parentContainer, List<String> path, String server, Map<String, String> idMap) {
     if (this.fsvProcessor.isCanonical(path)) {
-      ((Map) container).put("fhir:link", this.genReference((String) this.fromValue(container), (Map) container, server, id_map));
+      ((Map) container).put("fhir:link", this.genReference((String) this.fromValue(container), (Map) container, server, idMap));
     } else if (elementKey.equals(REFERENCE_KEY)) {
-      Object container_value = this.fromValue(container);
+      Object containerValue = this.fromValue(container);
 
-      if (container_value instanceof String) {
-        Map ref = this.genReference((String) container_value, (Map) container, server, id_map);
+      if (containerValue instanceof String) {
+        Map ref = this.genReference((String) containerValue, (Map) container, server, idMap);
         parentContainer.put("fhir:link", ref);
       }
     }
@@ -537,7 +537,7 @@ public class Preprocess extends BaseOperation {
     }
   }
 
-  private boolean is_choice_element(String name) {
+  private boolean isChoiceElement(String name) {
     return name.startsWith(VALUE_KEY) &&
         StringUtils.isNotEmpty(name.substring(VALUE_KEY_LEN)) &&
         CharUtils.isAsciiAlphaUpper(name.charAt(VALUE_KEY_LEN)) &&
