@@ -51,6 +51,18 @@ public class Cli {
     pre.setRequired(false);
     options.addOption(pre);
 
+    Option versionBase = new Option("vb", "versionbase", true, "base URI for OWL version");
+    versionBase.setRequired(false);
+    options.addOption(versionBase);
+
+    Option contextServer = new Option("cs", "contextserver", true, "context server base");
+    contextServer.setRequired(false);
+    options.addOption(contextServer);
+
+    Option fhirServer = new Option("fs", "fhirserver", true, "FHIR server base");
+    fhirServer.setRequired(false);
+    options.addOption(fhirServer);
+
     CommandLineParser parser = new DefaultParser();
 
     CommandLine command = null;
