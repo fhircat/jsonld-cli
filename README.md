@@ -5,14 +5,17 @@ A simple CLI for processing JSON-LD files. This CLI takes in HL7 FHIR JSON and o
 ## Usage
 
 ```
-usage: FHIRcat JSON-LD Command Line Interface
- -f,--outputFormat <arg>   output format (one of: RDF/XML,N3,TURTLE,N-TRIPLE,TTL)
- -i,--input <arg>          input file path (single file or directory)
- -o,--output <arg>         output file (single file or directory) - standard output if omitted
- -v,--shexvalidate         apply ShEx validation
- -p,--pre                  output the intermediate 'pre'-JSON structures
- -V,--verbose              print extra logging messages
- -h,--help                 print the usage help
+usage: FHIRCat JSON-LD Command Line Interface
+ -f,--outputFormat <arg>     output format (one of: RDF/XML,N3,TURTLE,N-TRIPLE,TTL)
+ -i,--input <arg>            input file path (single file or directory)
+ -o,--output <arg>           output file (single file or directory) - standard output if omitted
+ -p,--pre <arg>              output the intermediate 'pre'-JSON structures
+ -vb,--versionbase <arg>     base URI for OWL version
+ -cs,--contextserver <arg>   context server base
+ -fs,--fhirserver <arg>      FHIR server base
+ -v,--shexvalidate           apply ShEx validation
+ -V,--verbose                print extra logging messages
+ -h,--help                   print the usage help
  ```
 
 ## Parameters
@@ -28,13 +31,26 @@ The input HL7 JSON FHIR files to process. This may be either a single file or a 
 
 The output file/folder. If the input parameter is a folder, this must be as well. If this parameters is a folder, the output file will be named the same as the input file, but with the appropriate file extension for the RDF format. If this parameter is omitted, results will be sent to standard output. Omitting this parameters is only possible if the input parameters is a single file (not a directory).
 
+```-p,--pre <arg>            output the intermediate 'pre'-JSON structures```
+
+Outputs the intermediate 'pre' JSON FHIR structures. This parameter must be a directory (and it must exist). Files will be written using the same name as the input file but with a '-pre.json' suffix.
+
+```-vb,--versionbase <arg>   base URI for OWL version```
+
+The base OWL URI. Default: 'http://build.fhir.org/'
+
+```-cs,--contextserver <arg> context server base```
+
+The base of the JSON LD context files. Default: 'https://fhircat.org/fhir-r5/original/contexts/'
+
+```-fs,--fhirserver <arg>    FHIR server base```
+
+The base FHIR URI. Default: 'http://hl7.org/fhir/'
+
 ```-v,--shexvalidate         apply ShEx validation```
 
 Validates all output against the FHIR ShEx schema. If the resulting output does not pass validation, processing will stop and a message will be displayed listing the nonconformant shapes.
 
-```-p,--pre                  output the intermediate 'pre'-JSON structures```
-Outputs the intermediate 'pre' JSON FHIR structures. This parameter must be a directory (and it must exist). Files will be written using the same name as the input file but with a '-pre.json' suffix.
- 
 ```-V,--verbose              print extra logging messages```
 
 Outputs additional logging regarding the individual steps of the algorithm. Generally not necessary unless debugging or examining performance.

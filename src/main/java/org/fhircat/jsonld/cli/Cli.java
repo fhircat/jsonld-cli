@@ -32,21 +32,6 @@ public class Cli {
     output.setRequired(false);
     options.addOption(output);
 
-    Option shexValidate = new Option("v", "shexvalidate", false, "apply ShEx validation");
-    shexValidate.setType(Boolean.class);
-    shexValidate.setRequired(false);
-    options.addOption(shexValidate);
-
-    Option verbose = new Option("V", "verbose", false, "print extra logging messages");
-    verbose.setType(Boolean.class);
-    verbose.setRequired(false);
-    options.addOption(verbose);
-
-    Option help = new Option("h", "help", false, "print the usage help");
-    help.setType(Boolean.class);
-    help.setRequired(false);
-    options.addOption(help);
-
     Option pre = new Option("p", "pre", true, "output the intermediate 'pre'-JSON structures");
     pre.setRequired(false);
     options.addOption(pre);
@@ -63,11 +48,26 @@ public class Cli {
     fhirServer.setRequired(false);
     options.addOption(fhirServer);
 
+    Option shexValidate = new Option("v", "shexvalidate", false, "apply ShEx validation");
+    shexValidate.setType(Boolean.class);
+    shexValidate.setRequired(false);
+    options.addOption(shexValidate);
+
+    Option verbose = new Option("V", "verbose", false, "print extra logging messages");
+    verbose.setType(Boolean.class);
+    verbose.setRequired(false);
+    options.addOption(verbose);
+
+    Option help = new Option("h", "help", false, "print the usage help");
+    help.setType(Boolean.class);
+    help.setRequired(false);
+    options.addOption(help);
+
     CommandLineParser parser = new DefaultParser();
 
     CommandLine command = null;
 
-    String helpText = "FHIRcat JSON-LD Command Line Interface";
+    String helpText = "FHIRCat JSON-LD Command Line Interface";
     int helpWidth = 500;
 
     HelpFormatter formatter = new HelpFormatter();
