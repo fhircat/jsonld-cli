@@ -97,7 +97,11 @@ public class Cli {
 
     Operation operation = new ToRdf();
 
-    operation.run(command);
+    try {
+      operation.run(command);
+    } catch (Exception e) {
+      System.err.print(e.getMessage());
+    }
   }
 
 }

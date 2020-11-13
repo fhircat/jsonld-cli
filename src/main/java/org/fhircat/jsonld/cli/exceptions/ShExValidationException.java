@@ -10,6 +10,10 @@ import org.apache.commons.rdf.api.RDFTerm;
  */
 public class ShExValidationException extends CliException {
 
+  public ShExValidationException(String msg) {
+    super(msg);
+  }
+
   public ShExValidationException(String msg, List<Pair<RDFTerm, Label>> errors) {
     super(msg + "\nInvalid shapes: " + errors);
   }

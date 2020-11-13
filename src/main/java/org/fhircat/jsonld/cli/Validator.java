@@ -30,6 +30,7 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.fhircat.jsonld.cli.exceptions.ShExValidationException;
 
 /**
  * A ShEx validator for FHIR.
@@ -119,6 +120,10 @@ public class Validator {
     QueryExecution execution = QueryExecutionFactory.create(query, model);
 
     ResultSet results = execution.execSelect();
+
+    if (! results.hasNext()) {
+      throw new ShExValidationException("No ShEx shape could be associated to: " + focusUri);
+    }
 
     QuerySolution solution = results.next();
 

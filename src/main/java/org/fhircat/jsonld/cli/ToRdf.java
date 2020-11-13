@@ -97,7 +97,8 @@ public class ToRdf extends BaseOperation {
             validate
         );
       } catch (Throwable e) {
-        log.warn("Error writing file: " + file.getPath(), e);
+        log.warn("Error writing file: " + file.getPath() + ": " + e.getMessage());
+        log.debug("-> ", e);
       }
     };
 
