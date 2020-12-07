@@ -1,9 +1,7 @@
 package org.fhircat.jsonld.cli.exceptions;
 
-import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.util.Pair;
 import java.util.List;
-import org.apache.commons.rdf.api.RDFTerm;
+import org.fhircat.jsonld.cli.ValidationResult;
 
 /**
  * Exception thrown if the input does not pass ShEx validation.
@@ -14,7 +12,7 @@ public class ShExValidationException extends CliException {
     super(msg);
   }
 
-  public ShExValidationException(String msg, List<Pair<RDFTerm, Label>> errors) {
+  public ShExValidationException(String msg, List<ValidationResult> errors) {
     super(msg + "\nInvalid shapes: " + errors);
   }
 

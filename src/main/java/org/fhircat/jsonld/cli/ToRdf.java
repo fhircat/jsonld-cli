@@ -17,8 +17,6 @@ import com.apicatalog.rdf.io.RdfWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.util.Pair;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -35,7 +33,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.fhircat.jsonld.cli.exceptions.InvalidParameterException;
@@ -53,7 +50,8 @@ public class ToRdf extends BaseOperation {
 
   private Preprocess preprocess = new Preprocess();
 
-  private Validator validator = new Validator();
+  private Validator scalaValidator = new ScalaShExValidator();
+  private Validator javaValidator = new JavaShExValidator();
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -84,6 +82,19 @@ public class ToRdf extends BaseOperation {
       preDirectory = null;
     }
 
+    String shexImpl = commandLine.getOptionValue("sheximpl");
+
+    Validator validator;
+    if (StringUtils.isNotBlank(shexImpl)) {
+     switch (shexImpl) {
+       case "java": validator = this.javaValidator; break;
+       case "scala": validator = this.scalaValidator; break;
+       default: throw new InvalidParameterException("sheximpl", shexImpl, "The requested ShEx implementation is not available. Please use either `scala` (default) or `java`.");
+     }
+    } else {
+      validator = this.scalaValidator;
+    }
+
     Consumer<File> fn = (file) -> {
       try {
         boolean validate = commandLine.hasOption("v");
@@ -91,10 +102,11 @@ public class ToRdf extends BaseOperation {
         writeFile(file, jsonLdOptions, outputFile, preDirectory,
             commandLine.getOptionValue("f", "N-TRIPLE"),
             commandLine.getOptionValue("fs", "http://hl7.org/fhir/"),
-            commandLine.getOptionValue("cs", "https://fhircat.org/fhir-r5/original/contexts/"),
+            commandLine.getOptionValue("cs", "https://fhircat.org/fhir-r4/original/contexts/"),
             commandLine.getOptionValue("vb", "http://build.fhir.org/"),
             true,
-            validate
+            validate,
+            validator
         );
       } catch (Throwable e) {
         log.warn("Error writing file: " + file.getPath() + ": " + e.getMessage());
@@ -157,7 +169,7 @@ public class ToRdf extends BaseOperation {
   }
 
   private void writeFile(File input, JsonLdOptions jsonLdOptions, File output, File outputPreDirectory, String outputFormat,
-      String fhirServer, String contextServer, String versionBase, boolean addContext, boolean validate) throws Exception, JsonLdError {
+      String fhirServer, String contextServer, String versionBase, boolean addContext, boolean validate, Validator validator) throws Exception, JsonLdError {
     Map preprocessedJsonMap = this.preprocess.toR4(
         this.objectMapper.readValue(new FileReader(input), Map.class),
         versionBase,
@@ -202,12 +214,13 @@ public class ToRdf extends BaseOperation {
     log.debug("Done RDF Transform for: " + input.getPath());
 
     if (validate) {
-      List<Pair<RDFTerm, Label>> errors = Lists.newArrayList();
-      Consumer<List<Pair<RDFTerm, Label>>> errorHandler = (x) -> {
+      List<ValidationResult> errors = Lists.newArrayList();
+      Consumer<List<ValidationResult>> errorHandler = (x) -> {
         errors.addAll(x);
       };
 
-      boolean isValid = this.validator.validate(model, errorHandler);
+      boolean isValid = validator.validate(model, errorHandler);
+
       if (! isValid) {
         throw new ShExValidationException("Input file " + input.getPath() + " does not pass ShEx validation.", errors);
       }

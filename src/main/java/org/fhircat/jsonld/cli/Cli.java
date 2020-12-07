@@ -53,6 +53,10 @@ public class Cli {
     shexValidate.setRequired(false);
     options.addOption(shexValidate);
 
+    Option shexImpl= new Option("si", "sheximpl", true, "the ShEx validation implementation");
+    shexImpl.setRequired(false);
+    options.addOption(shexImpl);
+
     Option verbose = new Option("V", "verbose", false, "print extra logging messages");
     verbose.setType(Boolean.class);
     verbose.setRequired(false);

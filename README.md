@@ -14,6 +14,7 @@ usage: FHIRCat JSON-LD Command Line Interface
  -cs,--contextserver <arg>   context server base
  -fs,--fhirserver <arg>      FHIR server base
  -v,--shexvalidate           apply ShEx validation
+ -v,--sheximpl               the ShEx validation implementation
  -V,--verbose                print extra logging messages
  -h,--help                   print the usage help
  ```
@@ -41,7 +42,7 @@ The base OWL URI. Default: 'http://build.fhir.org/'
 
 ```-cs,--contextserver <arg> context server base```
 
-The base of the JSON LD context files. Default: 'https://fhircat.org/fhir-r5/original/contexts/'
+The base of the JSON LD context files. Default: 'https://fhircat.org/fhir-r4/original/contexts/'
 
 ```-fs,--fhirserver <arg>    FHIR server base```
 
@@ -50,6 +51,12 @@ The base FHIR URI. Default: 'http://hl7.org/fhir/'
 ```-v,--shexvalidate         apply ShEx validation```
 
 Validates all output against the FHIR ShEx schema. If the resulting output does not pass validation, processing will stop and a message will be displayed listing the nonconformant shapes.
+
+```-v,--sheximpl             the ShEx validation implementation```
+
+The FHIR ShEx schema implementation clas. Either 'java' or 'scala'. Default: 'scala'
+
+For more information, see the [Java](https://github.com/iovka/shex-java) and [Scala](https://github.com/labra/shaclex) implementations.
 
 ```-V,--verbose              print extra logging messages```
 
