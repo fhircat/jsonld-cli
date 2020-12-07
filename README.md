@@ -76,7 +76,7 @@ Prints the usage message and exits.
 * Java 11 or higher
 
 ### Steps
-1. Download the latest release [jsonld-cli-0.2.0-bin.tar.gz](https://github.com/fhircat/jsonld-cli/releases/download/v0.2.0-alpha/jsonld-cli-0.2.0-bin.tar.gz) or [jsonld-cli-0.2.0-bin.zip](https://github.com/fhircat/jsonld-cli/releases/download/v0.2.0-alpha/jsonld-cli-0.2.0-bin.zip)
+1. Download the latest release [jsonld-cli-0.3.1-bin.tar.gz](https://github.com/fhircat/jsonld-cli/releases/download/v0.3.1-alpha/jsonld-cli-0.3.1-bin.tar.gz) or [jsonld-cli-0.3.1-bin.zip](https://github.com/fhircat/jsonld-cli/releases/download/v0.3.1-alpha/jsonld-cli-0.3.1-bin.zip)
 2. Extract the archive, resulting in this format:
 ```
 jsonld-cli-0.2.0
