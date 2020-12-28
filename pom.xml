@@ -6,7 +6,7 @@
 
   <groupId>org.fhircat</groupId>
   <artifactId>jsonld-cli</artifactId>
-  <version>0.3.1</version>
+  <version>0.4.0</version>
 
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
@@ -29,7 +29,7 @@
     <dependency>
       <groupId>com.apicatalog</groupId>
       <artifactId>titanium-json-ld</artifactId>
-      <version>0.8.5-fork</version>
+      <version>1.0.0</version>
     </dependency>
 
     <dependency>
@@ -58,8 +58,8 @@
 
     <dependency>
       <groupId>org.glassfish</groupId>
-      <artifactId>javax.json</artifactId>
-      <version>1.1.4</version>
+      <artifactId>jakarta.json</artifactId>
+      <version>2.0.0</version>
     </dependency>
 
     <dependency>
