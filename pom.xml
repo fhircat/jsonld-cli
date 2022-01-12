@@ -16,14 +16,14 @@
   <dependencies>
     <dependency>
       <groupId>es.weso</groupId>
-      <artifactId>shex_2.12</artifactId>
-      <version>0.1.77</version>
+      <artifactId>shexsjena_2.13</artifactId>
+      <version>0.1.109</version>
     </dependency>
 
     <dependency>
       <groupId>es.weso</groupId>
-      <artifactId>srdfjena_2.12</artifactId>
-      <version>0.1.77</version>
+      <artifactId>srdfjena_2.13</artifactId>
+      <version>0.1.106</version>
     </dependency>
 
     <dependency>
@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-core</artifactId>
-      <version>3.16.0</version>
+      <version>4.3.2</version>
     </dependency>
 
     <dependency>
@@ -162,11 +162,11 @@
   </build>
 
   <repositories>
-    <repository>
+  <!--    <repository>
       <id>Bintray</id>
       <name>Bintray</name>
       <url>http://dl.bintray.com/labra/maven/</url>
       <layout>default</layout>
-    </repository>
+    </repository> -->
   </repositories>
 </project>
