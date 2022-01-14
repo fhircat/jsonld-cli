@@ -20,11 +20,11 @@
       <version>0.1.109</version>
     </dependency>
 
-    <dependency>
+<!--    <dependency>
       <groupId>es.weso</groupId>
       <artifactId>srdfjena_2.13</artifactId>
       <version>0.1.106</version>
-    </dependency>
+    </dependency> -->
 
     <dependency>
       <groupId>com.apicatalog</groupId>
@@ -46,7 +46,14 @@
 
     <dependency>
       <groupId>org.apache.jena</groupId>
-      <artifactId>jena-core</artifactId>
+      <artifactId>apache-jena-libs</artifactId>
+      <type>pom</type>
+      <version>4.3.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-shex</artifactId>
       <version>4.3.2</version>
     </dependency>
 
@@ -68,12 +75,13 @@
       <version>2.11.2</version>
     </dependency>
 
-    <dependency>
+<!-- I removed this dependency because it depends on Commons RDF which depends on Commons RDF Jena and on Jena 3
+   <dependency>
       <groupId>fr.inria.lille.shexjava</groupId>
       <artifactId>shexjava-core</artifactId>
       <version>1.3beta</version>
     </dependency>
-
+-->
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>

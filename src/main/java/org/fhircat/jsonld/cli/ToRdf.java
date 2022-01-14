@@ -1,6 +1,5 @@
 package org.fhircat.jsonld.cli;
 
-
 import com.apicatalog.jsonld.JsonLd;
 import com.apicatalog.jsonld.JsonLdError;
 import com.apicatalog.jsonld.JsonLdOptions;
@@ -51,7 +50,8 @@ public class ToRdf extends BaseOperation {
   private Preprocess preprocess = new Preprocess();
 
   private Validator scalaValidator = new ScalaShExValidator();
-  private Validator javaValidator = new JavaShExValidator();
+  private Validator jenaValidator = new JenaShExValidator();
+  // private Validator javaValidator = new JavaShExValidator();
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -87,7 +87,8 @@ public class ToRdf extends BaseOperation {
     Validator validator;
     if (StringUtils.isNotBlank(shexImpl)) {
      switch (shexImpl) {
-       case "java": validator = this.javaValidator; break;
+       case "java": validator = this.jenaValidator; break;  // Replace by JavaShExValidator when updated?
+       case "jena": validator = this.jenaValidator; break;
        case "scala": validator = this.scalaValidator; break;
        default: throw new InvalidParameterException("sheximpl", shexImpl, "The requested ShEx implementation is not available. Please use either `scala` (default) or `java`.");
      }
