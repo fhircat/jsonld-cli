@@ -6,7 +6,7 @@ import es.weso.shapemaps.ResultShapeMap;
 import es.weso.shapemaps.Status;
 import es.weso.shex.Schema;
 import es.weso.shex.validator.ShExsValidatorBuilder;
-import fr.inria.lille.shexjava.schema.Label;
+// import fr.inria.lille.shexjava.schema.Label;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,8 +29,8 @@ public class ScalaShExValidator extends BaseShExValidator {
 
   @Override
   protected boolean doValidate(
-      org.apache.commons.rdf.api.IRI focusNode,
-      Label shapeLabel,
+      String focusNode,
+      String shapeLabel,
       Model model,
       Consumer<List<ValidationResult>> errorHandler) {
     return Console.withOut(OutputStream.nullOutputStream(), () -> {
@@ -43,13 +43,13 @@ public class ScalaShExValidator extends BaseShExValidator {
   }
 
   private boolean runValidataion(
-          org.apache.commons.rdf.api.IRI focusNode,
-          Label shapeLabel,
+          String focusNode,
+          String shapeLabel,
           Model model,
           Consumer<List<ValidationResult>> errorHandler) {
     this.lazyInit();
 
-    ResultShapeMap result = validator.validateNodeShapeSync(model,focusNode.getIRIString(),shapeLabel.stringValue(),false);
+    ResultShapeMap result = validator.validateNodeShapeSync(model,focusNode,shapeLabel,false);
 
     List<ValidationResult> errors = Lists.newArrayList();
     boolean valid = result.associations().toList().toStream().forall(assoc -> {

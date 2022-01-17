@@ -1,11 +1,8 @@
 package org.fhircat.jsonld.cli;
 
-import fr.inria.lille.shexjava.schema.Label;
 import java.util.List;
 import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.jena.JenaRDF;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -20,10 +17,7 @@ import org.fhircat.jsonld.cli.exceptions.ShExValidationException;
  */
 public abstract class BaseShExValidator implements Validator {
 
-  protected JenaRDF rdf;
-
   public BaseShExValidator() {
-    this.rdf = new JenaRDF();
   }
 
   synchronized void lazyInit() {
@@ -38,15 +32,15 @@ public abstract class BaseShExValidator implements Validator {
 
     String resourceType = this.getResourceType(model, focusUri);
 
-    IRI focusNode = this.rdf.createIRI(focusUri);
-    Label shapeLabel = new Label(this.rdf.createIRI("http://hl7.org/fhir/shape/" + StringUtils.substringAfterLast(resourceType, "/"))); //to change with what you want
+    String focusNode = focusUri;
+    String shapeLabel =  "http://hl7.org/fhir/shape/" + StringUtils.substringAfterLast(resourceType, "/"); //to change with what you want
 
     boolean result = this.doValidate(focusNode, shapeLabel, model, errorHandler);
 
     return result;
   }
 
-  protected abstract boolean doValidate(IRI focusNode, Label shapeLabel, Model dataGraph, Consumer<List<ValidationResult>> errorHandler);
+  protected abstract boolean doValidate(String focusNode, String shapeLabel, Model dataGraph, Consumer<List<ValidationResult>> errorHandler);
 
   String getFocusNode(Model model) {
     Query query = QueryFactory.create("select ?s { ?s <http://hl7.org/fhir/nodeRole> <http://hl7.org/fhir/treeRoot> . }");
